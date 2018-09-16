@@ -3,6 +3,7 @@ package Graphics;
 import General.Debug;
 import General.GameBehaviour;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -42,7 +43,6 @@ public class FortuneWindow
             if(gameWindow == NULL)
                 Debug.error("Unable to create game window");
 
-
             glfwShowWindow(gameWindow);
 
             gameBehaviour.onPreload();
@@ -75,7 +75,7 @@ public class FortuneWindow
         glfwSwapInterval(1);
 
         GL.createCapabilities();
-        glClearColor(1.0f, 0.4f, 0.2f, 0.0f);
+        glClearColor(52 / 255f, 152 / 255f, 219 / 255f,1.0f);
 
         while ( !glfwWindowShouldClose(gameWindow) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -101,9 +101,8 @@ public class FortuneWindow
 
     public void setResizable(boolean resizable)
     {
-        if(resizable)
-            this.resizable = GLFW_TRUE;
-        this.resizable = GLFW_FALSE;
+        if(resizable) this.resizable = GLFW_TRUE;
+        else this.resizable = GLFW_FALSE;
     }
 
     private void handleErrors()

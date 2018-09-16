@@ -9,7 +9,6 @@ public class Main implements GameBehaviour
     {
         window = new FortuneWindow(this);
         window.setTitle("Hello");
-        window.setResizable(false);
         window.setDimensions(600, 600);
         window.show();
     }
@@ -19,28 +18,32 @@ public class Main implements GameBehaviour
         new Main();
     }
 
+    @Override
     public void onPreload()
     {
-        System.out.println("preloaded");
+        System.out.println("preload");
     }
 
+    @Override
     public void onStart()
     {
-        System.out.println("started");
+        window.getWindowInfo();
     }
 
+    @Override
     public void onRender()
     {
-        System.out.println("rendering");
+
     }
 
+    @Override
     public void onUpdate()
     {
-        System.out.println("updating");
     }
 
+    @Override
     public void onDispose()
     {
-        System.out.println("disposed");
+        System.out.println("dispose");
     }
 }
