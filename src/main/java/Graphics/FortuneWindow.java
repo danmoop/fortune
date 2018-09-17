@@ -2,9 +2,12 @@ package Graphics;
 
 import General.Debug;
 import General.GameBehaviour;
+import Scene.SceneBehaviour;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.opengl.GL;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -16,77 +19,129 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class FortuneWindow
 {
     private GameBehaviour gameBehaviour;
+    private List<SceneBehaviour> scenes;
+    private SceneBehaviour activeScene;
     private long gameWindow;
-
-    private int resizable = GLFW_TRUE;
-    private String title;
     private int width = -1;
     private int height = -1;
+    private String title;
+    private Thread renderThread;
+    private boolean renderThreadRunning = true;
 
     public FortuneWindow(GameBehaviour gameBehaviour)
     {
         this.gameBehaviour = gameBehaviour;
+        scenes = new ArrayList<SceneBehaviour>();
+        gameBehaviour.onPreload();
     }
 
     public void show()
     {
-        try{
-            handleErrors();
-            GLFWErrorCallback.createPrint(System.err).set();
+        GLFWErrorCallback.createPrint(System.err).set();
 
-            glfwDefaultWindowHints();
-            glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-            glfwWindowHint(GLFW_RESIZABLE, resizable);
+        if(!glfwInit())
+            Debug.error("Unable to initialize glfw");
 
-            gameWindow = glfwCreateWindow(width, height, title, NULL, NULL);
+        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-            if(gameWindow == NULL)
-                Debug.error("Unable to create game window");
+        if(width == -1 || height == -1 || title == null)
+            Debug.error("Width or height or title aren't initialized");
 
-            glfwShowWindow(gameWindow);
+        gameWindow = glfwCreateWindow(width, height, title, NULL, NULL);
 
-            gameBehaviour.onPreload();
-            gameBehaviour.onStart();
+        if(gameWindow == NULL)
+            Debug.error("Unable to create game window");
 
-            new Thread(new Runnable() {
-                public void run() {
-                    render();
-                }
-            }).start();
+        glfwSetKeyCallback(gameWindow, (gameWindow, key, scancode, actions, mods) -> {
+            if(key == GLFW_KEY_ESCAPE && actions == GLFW_RELEASE)
+                glfwSetWindowShouldClose(gameWindow, true);
+        });
 
-            while (!glfwWindowShouldClose(gameWindow))
-            {
-                //UPDATE
-                glfwPollEvents();
-                gameBehaviour.onUpdate();
-            }
-        } finally {
-            gameBehaviour.onDispose();
-            glfwTerminate();
-            glfwSetErrorCallback(null).free();
-            System.exit(0);
+        glfwShowWindow(gameWindow);
+
+        gameBehaviour.onStart();
+
+        renderThread = new Thread(() -> {
+            if(renderThreadRunning)
+                renderScene();
+        });
+
+        renderThread.start();
+
+        while (!glfwWindowShouldClose(gameWindow))
+        {
+            glfwPollEvents();
+            activeScene.onUpdate();
         }
+
+        gameBehaviour.onDispose();
+        activeScene.onDispose();
+        glfwTerminate();
+        System.exit(0);
     }
 
-    private void render()
+    public void renderScene()
     {
-        //RENDER
         glfwMakeContextCurrent(gameWindow);
         glfwSwapInterval(1);
-
         GL.createCapabilities();
         glClearColor(52 / 255f, 152 / 255f, 219 / 255f,1.0f);
 
-        while ( !glfwWindowShouldClose(gameWindow) ) {
+        while(!glfwWindowShouldClose(gameWindow))
+        {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glfwSwapBuffers(gameWindow);
-            glfwPollEvents();
-
-            gameBehaviour.onRender();
+            activeScene.onRender();
         }
     }
 
-    // GETTERS & SETTERS BELOW
+    public void addScene(SceneBehaviour sceneBehaviour)
+    {
+        scenes.add(sceneBehaviour);
+
+        if(scenes.size() == 1)
+            activeScene = sceneBehaviour;
+    }
+
+    public void setSceneAsActive(SceneBehaviour scene)
+    {
+        activeScene = scene;
+        initScene(activeScene);
+    }
+
+    public void initScene(SceneBehaviour scene)
+    {
+        scene.onStart();
+    }
+
+    //GETTERS & SETTERS
+
+    public int getHeight()
+    {
+        return height;
+    }
+
+    public String getTitle()
+    {
+        return title;
+    }
+
+    public int getWidth()
+    {
+        return width;
+    }
+
+    public List<SceneBehaviour> getScenes()
+    {
+        return scenes;
+    }
+
+    public SceneBehaviour getActiveScene()
+    {
+        return activeScene;
+    }
 
     public void setDimensions(int width, int height)
     {
@@ -99,31 +154,14 @@ public class FortuneWindow
         this.title = title;
     }
 
-    public void setResizable(boolean resizable)
+    public SceneBehaviour getSceneByName(String name)
     {
-        if(resizable) this.resizable = GLFW_TRUE;
-        else this.resizable = GLFW_FALSE;
-    }
+        for (SceneBehaviour scene: scenes)
+        {
+            if(scene.getSceneName().equals(name))
+                return scene;
+        }
 
-    private void handleErrors()
-    {
-        if(width == -1 || height == -1)
-            Debug.error("Width and height aren't initialized");
-        if(!glfwInit())
-            Debug.error("Unable to initialize glfw");
-        if(title == null)
-            Debug.error("Title is initialized\nUse name.setTitle('Anything');");
-    }
-
-    public void getWindowInfo()
-    {
-        System.out.println("FortuneWindow{" +
-                "gameBehaviour=" + gameBehaviour +
-                ", gameWindow=" + gameWindow +
-                ", resizable=" + resizable +
-                ", title='" + title + '\'' +
-                ", width=" + width +
-                ", height=" + height +
-                '}');
+        return null;
     }
 }
