@@ -82,7 +82,7 @@ public class FortuneWindow
             activeScene.onUpdate();
             activeScene.onRender();
 
-            //System.out.println(activeScene.getSceneName());
+            System.out.println(activeScene.getSceneName());
         }
     }
 

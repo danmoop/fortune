@@ -54,14 +54,17 @@ public class FirstScene implements SceneBehaviour
     @Override
     public void invoke(long window, int key, int scancode, int action, int mods)
     {
-        System.out.println(key);
-
-        if(key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
+        if(wind.getActiveScene().getSceneName() == getSceneName())
         {
-            SceneBehaviour scene = wind.getSceneByName("SecondScene");
-            wind.setSceneAsActive(scene);
+            System.out.println(key);
 
-            scene.onStart();
+            if(key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
+            {
+                SceneBehaviour scene = wind.getSceneByName("SecondScene");
+                wind.setSceneAsActive(scene);
+
+                scene.onStart();
+            }
         }
     }
 }
