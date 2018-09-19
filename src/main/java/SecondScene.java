@@ -47,7 +47,6 @@ public class SecondScene implements SceneBehaviour
     @Override
     public void onDispose()
     {
-
     }
 
     @Override

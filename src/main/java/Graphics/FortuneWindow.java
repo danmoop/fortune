@@ -100,11 +100,13 @@ public class FortuneWindow
 
     public void setSceneAsActive(SceneBehaviour scene)
     {
+        if(activeScene != null)
+            activeScene.onDispose();
+
         activeScene = scene;
 
         if(isWindowShown)
             glfwSetKeyCallback(gameWindow, activeScene);
-
     }
 
     //GETTERS & SETTERS

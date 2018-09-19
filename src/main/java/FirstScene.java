@@ -45,7 +45,6 @@ public class FirstScene implements SceneBehaviour
     @Override
     public void onDispose()
     {
-
     }
 
     @Override
