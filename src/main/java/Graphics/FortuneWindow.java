@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClearColor;
@@ -20,19 +21,16 @@ public class FortuneWindow
 {
     private GameBehaviour gameBehaviour;
     private List<SceneBehaviour> scenes;
-    private SceneBehaviour activeScene;
+    private SceneBehaviour activeScene = null;
     private long gameWindow;
     private int width = -1;
     private int height = -1;
     private String title;
-    private Thread renderThread;
-    private boolean renderThreadRunning = true;
 
     public FortuneWindow(GameBehaviour gameBehaviour)
     {
         this.gameBehaviour = gameBehaviour;
         scenes = new ArrayList<SceneBehaviour>();
-        gameBehaviour.onPreload();
     }
 
     public void show()
@@ -54,66 +52,48 @@ public class FortuneWindow
         if(gameWindow == NULL)
             Debug.error("Unable to create game window");
 
-        glfwSetKeyCallback(gameWindow, (gameWindow, key, scancode, actions, mods) -> {
-            if(key == GLFW_KEY_ESCAPE && actions == GLFW_RELEASE)
-                glfwSetWindowShouldClose(gameWindow, true);
-        });
-
+        glfwSetKeyCallback(gameWindow, activeScene);
         glfwShowWindow(gameWindow);
 
         gameBehaviour.onStart();
 
-        renderThread = new Thread(() -> {
-            if(renderThreadRunning)
-                renderScene();
-        });
+        if(activeScene == null)
+            Debug.error("Active scene is not initialized. Add any Scene or make your scene active");
 
-        renderThread.start();
-
-        while (!glfwWindowShouldClose(gameWindow))
-        {
-            glfwPollEvents();
-            activeScene.onUpdate();
-        }
+        renderScene();
 
         gameBehaviour.onDispose();
         activeScene.onDispose();
+        glfwFreeCallbacks(gameWindow);
+        glfwDestroyWindow(gameWindow);
         glfwTerminate();
+        glfwSetErrorCallback(null).free();
+        System.gc();
         System.exit(0);
     }
 
     public void renderScene()
     {
-        glfwMakeContextCurrent(gameWindow);
-        glfwSwapInterval(1);
-        GL.createCapabilities();
-        glClearColor(52 / 255f, 152 / 255f, 219 / 255f,1.0f);
+        activeScene.onStart();
 
         while(!glfwWindowShouldClose(gameWindow))
         {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glfwSwapBuffers(gameWindow);
+            glfwPollEvents();
+            activeScene.onUpdate();
             activeScene.onRender();
+
+            //System.out.println(activeScene.getSceneName());
         }
     }
 
     public void addScene(SceneBehaviour sceneBehaviour)
     {
         scenes.add(sceneBehaviour);
-
-        if(scenes.size() == 1)
-            activeScene = sceneBehaviour;
     }
 
     public void setSceneAsActive(SceneBehaviour scene)
     {
         activeScene = scene;
-        initScene(activeScene);
-    }
-
-    public void initScene(SceneBehaviour scene)
-    {
-        scene.onStart();
     }
 
     //GETTERS & SETTERS
@@ -163,5 +143,10 @@ public class FortuneWindow
         }
 
         return null;
+    }
+
+    public long getGameWindow()
+    {
+        return gameWindow;
     }
 }
