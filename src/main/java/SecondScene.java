@@ -54,11 +54,16 @@ public class SecondScene implements SceneBehaviour
         {
             if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
             {
-                SceneBehaviour scene = wind.getSceneByName("FirstScene");
+                SceneBehaviour scene = wind.getSceneByName("ThirdScene");
                 wind.setSceneAsActive(scene);
 
                 scene.onStart();
+
+                wind.setWindowTitle(scene.getSceneName());
             }
+
+            if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+                glfwSetWindowShouldClose(wind.getGameWindow(), true);
         }
     }
 }

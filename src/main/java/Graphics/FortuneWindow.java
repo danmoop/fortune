@@ -180,6 +180,11 @@ public class FortuneWindow
         return null;
     }
 
+    public void setWindowTitle(String title)
+    {
+        glfwSetWindowTitle(gameWindow, title);
+    }
+
     public long getGameWindow()
     {
         return gameWindow;
