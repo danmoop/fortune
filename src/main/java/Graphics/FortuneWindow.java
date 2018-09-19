@@ -4,8 +4,12 @@ import General.Debug;
 import General.GameBehaviour;
 import Scene.SceneBehaviour;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryStack;
 
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +19,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11C.glClear;
+import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class FortuneWindow
@@ -62,6 +67,25 @@ public class FortuneWindow
 
         gameBehaviour.onStart();
 
+        // Center the window
+        try ( MemoryStack stack = stackPush() ) {
+            IntBuffer pWidth = stack.mallocInt(1); // int*
+            IntBuffer pHeight = stack.mallocInt(1); // int*
+
+            // Get the window size passed to glfwCreateWindow
+            glfwGetWindowSize(gameWindow, pWidth, pHeight);
+
+            // Get the resolution of the primary monitor
+            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+            // Center the window
+            glfwSetWindowPos(
+                    gameWindow,
+                    (vidmode.width() - pWidth.get(0)) / 2,
+                    (vidmode.height() - pHeight.get(0)) / 2
+            );
+        } // the stack frame is popped automatically
+
         isWindowShown = true;
 
         if(activeScene == null)
@@ -85,11 +109,9 @@ public class FortuneWindow
 
         while(!glfwWindowShouldClose(gameWindow))
         {
-            glfwPollEvents();
+            glfwWaitEvents();
             activeScene.onUpdate();
             activeScene.onRender();
-
-            //System.out.println(activeScene.getSceneName());
         }
     }
 

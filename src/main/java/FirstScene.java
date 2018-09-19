@@ -52,7 +52,7 @@ public class FirstScene implements SceneBehaviour
     {
         if(wind.getActiveScene() == this)
         {
-            if(key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
+            if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
             {
                 SceneBehaviour scene = wind.getSceneByName("SecondScene");
                 wind.setSceneAsActive(scene);

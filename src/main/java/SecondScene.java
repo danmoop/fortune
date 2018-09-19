@@ -1,9 +1,7 @@
 import Graphics.FortuneWindow;
 import Scene.SceneBehaviour;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
@@ -54,7 +52,7 @@ public class SecondScene implements SceneBehaviour
     {
         if(wind.getActiveScene() == this)
         {
-            if(key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
+            if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
             {
                 SceneBehaviour scene = wind.getSceneByName("FirstScene");
                 wind.setSceneAsActive(scene);
