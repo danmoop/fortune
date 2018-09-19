@@ -26,6 +26,7 @@ public class FortuneWindow
     private int width = -1;
     private int height = -1;
     private String title;
+    private boolean isWindowShown = false;
 
     public FortuneWindow(GameBehaviour gameBehaviour)
     {
@@ -57,6 +58,8 @@ public class FortuneWindow
 
         gameBehaviour.onStart();
 
+        isWindowShown = true;
+
         if(activeScene == null)
             Debug.error("Active scene is not initialized. Add any Scene or make your scene active");
 
@@ -82,7 +85,7 @@ public class FortuneWindow
             activeScene.onUpdate();
             activeScene.onRender();
 
-            System.out.println(activeScene.getSceneName());
+            //System.out.println(activeScene.getSceneName());
         }
     }
 
@@ -94,6 +97,10 @@ public class FortuneWindow
     public void setSceneAsActive(SceneBehaviour scene)
     {
         activeScene = scene;
+
+        if(isWindowShown)
+            glfwSetKeyCallback(gameWindow, activeScene);
+
     }
 
     //GETTERS & SETTERS

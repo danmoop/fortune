@@ -1,10 +1,9 @@
 import Graphics.FortuneWindow;
 import Scene.SceneBehaviour;
-import org.lwjgl.opengl.GL;
 
-import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
@@ -13,11 +12,11 @@ import static org.lwjgl.opengl.GL11C.glClear;
 public class SecondScene implements SceneBehaviour
 {
 
-    FortuneWindow window;
+    FortuneWindow wind;
 
     public SecondScene(FortuneWindow window)
     {
-        this.window = window;
+        wind = window;
     }
 
     @Override
@@ -36,7 +35,7 @@ public class SecondScene implements SceneBehaviour
     public void onRender()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glfwSwapBuffers(window.getGameWindow());
+        glfwSwapBuffers(wind.getGameWindow());
     }
 
     @Override
@@ -54,6 +53,15 @@ public class SecondScene implements SceneBehaviour
     @Override
     public void invoke(long window, int key, int scancode, int action, int mods)
     {
+        if(wind.getActiveScene() == this)
+        {
+            if(key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
+            {
+                SceneBehaviour scene = wind.getSceneByName("FirstScene");
+                wind.setSceneAsActive(scene);
 
+                scene.onStart();
+            }
+        }
     }
 }
