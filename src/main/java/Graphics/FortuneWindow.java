@@ -54,6 +54,10 @@ public class FortuneWindow
             Debug.error("Unable to create game window");
 
         glfwSetKeyCallback(gameWindow, activeScene);
+
+        glfwMakeContextCurrent(gameWindow);
+        glfwSwapInterval(1);
+        GL.createCapabilities();
         glfwShowWindow(gameWindow);
 
         gameBehaviour.onStart();

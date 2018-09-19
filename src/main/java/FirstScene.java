@@ -26,9 +26,6 @@ public class FirstScene implements SceneBehaviour
     @Override
     public void onStart()
     {
-        glfwMakeContextCurrent(wind.getGameWindow());
-        glfwSwapInterval(1);
-        GL.createCapabilities();
         glClearColor(26 / 255f, 188 / 255f, 156 / 255f,1.0f);
     }
 
