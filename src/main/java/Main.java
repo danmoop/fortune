@@ -18,8 +18,6 @@ public class Main implements GameBehaviour
         window.addScene(scene2);
         window.addScene(scene3);
 
-        window.setSceneAsActive(scene);
-
         window.setDimensions(600, 600);
         window.setTitle("App");
         window.show();

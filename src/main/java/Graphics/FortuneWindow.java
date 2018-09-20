@@ -118,6 +118,9 @@ public class FortuneWindow
     public void addScene(SceneBehaviour sceneBehaviour)
     {
         scenes.add(sceneBehaviour);
+
+        if(scenes.size() == 1)
+            activeScene = sceneBehaviour;
     }
 
     public void setSceneAsActive(SceneBehaviour scene)
@@ -176,6 +179,8 @@ public class FortuneWindow
             if(scene.getSceneName().equals(name))
                 return scene;
         }
+
+        Debug.error("Can't find scene named: " + name +". Perhaps you forgot to add it");
 
         return null;
     }
