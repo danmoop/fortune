@@ -10,7 +10,7 @@ public class Main implements GameBehaviour
 
     public Main()
     {
-        window = new FortuneWindow(this);
+        window = new FortuneWindow(this, false);
         scene = new FirstScene(window);
         scene2 = new SecondScene(window);
         scene3 = new ThirdScene(window);

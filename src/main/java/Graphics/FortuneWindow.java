@@ -2,9 +2,12 @@ package Graphics;
 
 import General.Debug;
 import General.GameBehaviour;
+import Input.CursorEnter;
+import Input.CursorPos;
+import Input.Keyboard;
+import Input.Mouse;
 import Scene.SceneBehaviour;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -15,10 +18,6 @@ import java.util.List;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11C.glClear;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -32,10 +31,12 @@ public class FortuneWindow
     private int height = -1;
     private String title;
     private boolean isWindowShown = false;
+    private boolean vSync;
 
-    public FortuneWindow(GameBehaviour gameBehaviour)
+    public FortuneWindow(GameBehaviour gameBehaviour, boolean vSync)
     {
         this.gameBehaviour = gameBehaviour;
+        this.vSync = vSync;
         scenes = new ArrayList<SceneBehaviour>();
     }
 
@@ -58,14 +59,16 @@ public class FortuneWindow
         if(gameWindow == NULL)
             Debug.error("Unable to create game window");
 
-        glfwSetKeyCallback(gameWindow, activeScene);
-
+        glfwSetMouseButtonCallback(gameWindow, new Mouse());
+        glfwSetKeyCallback(gameWindow, new Keyboard());
+        glfwSetCursorPosCallback(gameWindow, new CursorPos());
+        glfwSetCursorEnterCallback(gameWindow, new CursorEnter());
         glfwMakeContextCurrent(gameWindow);
-        glfwSwapInterval(1);
+
+        if(vSync) glfwSwapInterval(1);
+
         GL.createCapabilities();
         glfwShowWindow(gameWindow);
-
-        gameBehaviour.onStart();
 
         // Center the window
         try ( MemoryStack stack = stackPush() ) {
@@ -88,13 +91,15 @@ public class FortuneWindow
 
         isWindowShown = true;
 
+        gameBehaviour.onStart();
+
         if(activeScene == null)
             Debug.error("Active scene is not initialized. Add any Scene or make your scene active");
 
         renderScene();
 
         gameBehaviour.onDispose();
-        activeScene.onDispose();
+        activeScene.dispose();
         glfwFreeCallbacks(gameWindow);
         glfwDestroyWindow(gameWindow);
         glfwTerminate();
@@ -105,13 +110,13 @@ public class FortuneWindow
 
     public void renderScene()
     {
-        activeScene.onStart();
+        activeScene.start();
 
         while(!glfwWindowShouldClose(gameWindow))
         {
             glfwWaitEvents();
-            activeScene.onUpdate();
-            activeScene.onRender();
+            activeScene.update();
+            activeScene.render();
         }
     }
 
@@ -126,12 +131,10 @@ public class FortuneWindow
     public void setSceneAsActive(SceneBehaviour scene)
     {
         if(activeScene != null)
-            activeScene.onDispose();
+            activeScene.dispose();
 
         activeScene = scene;
-
-        if(isWindowShown)
-            glfwSetKeyCallback(gameWindow, activeScene);
+        activeScene.start();
     }
 
     //GETTERS & SETTERS

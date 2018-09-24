@@ -1,7 +1,11 @@
 import Graphics.FortuneWindow;
+import Input.CursorPos;
+import Input.Keyboard;
+import Input.Mouse;
 import Scene.SceneBehaviour;
-import org.lwjgl.opengl.GL;
 
+import static Input.Mouse.LEFT_MOUSE_BUTTON;
+import static Input.Mouse.RIGHT_MOUSE_BUTTON;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClearColor;
@@ -24,46 +28,43 @@ public class FirstScene implements SceneBehaviour
     }
 
     @Override
-    public void onStart()
+    public void start()
     {
         glClearColor(26 / 255f, 188 / 255f, 156 / 255f,1.0f);
     }
 
     @Override
-    public void onRender()
+    public void render()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwSwapBuffers(wind.getGameWindow());
     }
 
     @Override
-    public void onUpdate()
+    public void update()
     {
-
-    }
-
-    @Override
-    public void onDispose()
-    {
-    }
-
-    @Override
-    public void invoke(long window, int key, int scancode, int action, int mods)
-    {
-        if(wind.getActiveScene() == this)
+        if(Keyboard.isKeyDown(GLFW_KEY_SPACE))
         {
-            if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-            {
                 SceneBehaviour scene = wind.getSceneByName("SecondScene");
                 wind.setSceneAsActive(scene);
-
-                scene.onStart();
-
-                wind.setWindowTitle(scene.getSceneName());
-            }
-
-            if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-                glfwSetWindowShouldClose(wind.getGameWindow(), true);
         }
+
+        if(Keyboard.isKeyDown(GLFW_KEY_R))
+            System.out.println("hello from " + (wind.getScenes().indexOf(this) + 1) + " scene");
+
+        if(Mouse.isMouseButtonDown(LEFT_MOUSE_BUTTON))
+            System.out.println("LMB pressed");
+
+        if(Mouse.isMouseButtonDown(RIGHT_MOUSE_BUTTON))
+            System.out.println("RMB pressed");
+
+        System.out.println("X: " + CursorPos.getXpos());
+        System.out.println("Y: " + CursorPos.getYpos());
+
+    }
+
+    @Override
+    public void dispose()
+    {
     }
 }
