@@ -2,6 +2,7 @@ package Input;
 
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 
+import static org.lwjgl.glfw.GLFW.GLFW_HOVERED;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public class Mouse implements GLFWMouseButtonCallbackI
@@ -18,7 +19,7 @@ public class Mouse implements GLFWMouseButtonCallbackI
         buttons[button] = action != GLFW_RELEASE;
     }
 
-    public static boolean isMouseButtonDown(int mouseButton)
+    public static boolean isMouseButtonPressed(int mouseButton)
     {
         return buttons[mouseButton];
     }

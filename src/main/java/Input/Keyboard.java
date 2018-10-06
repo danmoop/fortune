@@ -15,7 +15,7 @@ public class Keyboard implements GLFWKeyCallbackI
         keys[key] = action != GLFW_RELEASE;
     }
 
-    public static boolean isKeyDown(int key)
+    public static boolean isKeyPressed(int key)
     {
         return keys[key];
     }

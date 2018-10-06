@@ -1,7 +1,11 @@
 import Graphics.FortuneWindow;
 import Input.Keyboard;
+import Input.Mouse;
 import Scene.SceneBehaviour;
 
+import static Graphics.FortuneWindow.clearBackground;
+import static Graphics.FortuneWindow.renderWindow;
+import static Input.Mouse.LEFT_MOUSE_BUTTON;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClearColor;
@@ -27,28 +31,24 @@ public class SecondScene implements SceneBehaviour
     @Override
     public void start()
     {
-        glClearColor(52 / 255f, 152 / 255f, 219 / 255f,1.0f);
+        clearBackground(52, 152, 219, 1);
     }
 
     @Override
     public void render()
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glfwSwapBuffers(wind.getGameWindow());
+        renderWindow();
     }
 
     @Override
     public void update()
     {
 
-        if(Keyboard.isKeyDown(GLFW_KEY_SPACE))
+        if(Mouse.isMouseButtonPressed(LEFT_MOUSE_BUTTON))
         {
             SceneBehaviour scene = wind.getSceneByName("ThirdScene");
-            wind.setSceneAsActive(scene);
+            wind.openScene(scene);
         }
-
-        if(Keyboard.isKeyDown(GLFW_KEY_R))
-            System.out.println("hello from " + (wind.getScenes().indexOf(this) + 1) + " scene");
 
     }
 

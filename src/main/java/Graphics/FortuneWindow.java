@@ -11,13 +11,15 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11C.glClear;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -26,12 +28,14 @@ public class FortuneWindow
     private GameBehaviour gameBehaviour;
     private List<SceneBehaviour> scenes;
     private SceneBehaviour activeScene = null;
-    private long gameWindow;
+    private static long gameWindow;
     private int width = -1;
     private int height = -1;
     private String title;
     private boolean isWindowShown = false;
     private boolean vSync;
+    private final String version = "v0.03";
+    private int resizable = GLFW_TRUE;
 
     public FortuneWindow(GameBehaviour gameBehaviour, boolean vSync)
     {
@@ -47,12 +51,15 @@ public class FortuneWindow
         if(!glfwInit())
             Debug.error("Unable to initialize glfw");
 
+        // setting window properties
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, resizable);
 
-        if(width == -1 || height == -1 || title == null)
-            Debug.error("Width or height or title aren't initialized");
+        if(width == -1 || height == -1)
+            throw new NullPointerException("Width or height or title aren't initialized. Use setDimensions() method");
+
+        if(title == null) title = "Fortune " + version;
 
         gameWindow = glfwCreateWindow(width, height, title, NULL, NULL);
 
@@ -98,6 +105,8 @@ public class FortuneWindow
 
         renderScene();
 
+        // everything down here is executed when window is closed
+
         gameBehaviour.onDispose();
         activeScene.dispose();
         glfwFreeCallbacks(gameWindow);
@@ -128,7 +137,7 @@ public class FortuneWindow
             activeScene = sceneBehaviour;
     }
 
-    public void setSceneAsActive(SceneBehaviour scene)
+    public void openScene(SceneBehaviour scene)
     {
         if(activeScene != null)
             activeScene.dispose();
@@ -183,14 +192,29 @@ public class FortuneWindow
                 return scene;
         }
 
-        Debug.error("Can't find scene named: " + name +". Perhaps you forgot to add it");
+        throw new NullPointerException("Can't find scene named: " + name + ". Perhaps you forgot to add it");
+    }
 
-        return null;
+    public void setResizable(boolean resizable)
+    {
+        if(resizable) this.resizable = GLFW_TRUE;
+        else this.resizable = GLFW_FALSE;
     }
 
     public void setWindowTitle(String title)
     {
         glfwSetWindowTitle(gameWindow, title);
+    }
+
+    public static void clearBackground(float red, float green, float blue, float alpha)
+    {
+        glClearColor(red / 255f, green / 255f, blue / 255f, alpha);
+    }
+
+    public static void renderWindow()
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwSwapBuffers(gameWindow);
     }
 
     public long getGameWindow()

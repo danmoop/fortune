@@ -17,9 +17,8 @@ public class Main implements GameBehaviour
         window.addScene(scene);
         window.addScene(scene2);
         window.addScene(scene3);
-
-        window.setDimensions(600, 600);
-        window.setTitle("App");
+        window.setResizable(true);
+        window.setDimensions(600, 400);
         window.show();
     }
 
